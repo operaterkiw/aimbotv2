@@ -1,0 +1,146 @@
+-- โหลด RedzHubUI
+local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/tbao143/Library-ui/refs/heads/main/Redzhubui"))()
+
+-- สร้างหน้าต่างหลัก
+local Window = redzlib:MakeWindow({
+    Title = "NATIONAL HUB",
+    SubTitle = "Arise Crossover",
+    SaveFolder = "Version: Last ver for redz ui"
+})
+
+-- Minimize Button
+Window:AddMinimizeButton({
+    Button = { Image = "rbxassetid://115099027597207", BackgroundTransparency = 0 },
+    Corner = { CornerRadius = UDim.new(35, 1) },
+})
+
+-- แท็บ Home
+local Tab1 = Window:MakeTab({"Home Tab", "cool"})
+
+-- Invite Discord
+Tab1:AddDiscordInvite({
+    Name = "NATIONAL HUB",
+    Description = "Join server",
+    Logo = "rbxassetid://18751483361",
+    Invite = "your-discord-invite-here"
+})
+
+-- Speed Toggle (ตกแต่ง)
+Tab1:AddToggle({
+    Name = "Speed",
+    Description = "Set speed",
+    Default = false
+})
+
+Tab1:AddSlider({
+    Name = "Speed",
+    Min = 0.1,
+    Max = 1000,
+    Increase = 0.1,
+    Default = 14,
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end
+})
+
+-- แท็บ Theme
+local Tab2 = Window:MakeTab({"Theme", "cherry"})
+Tab2:AddSection({"Section"})
+Tab2:AddDropdown({
+    Name = "Themes List",
+    Description = "Select the <font color='rgb(88, 101, 242)'>Number</font>",
+    Options = {"Dark", "Darker", "Purple"},
+    Default = "Dark",
+    Flag = "dropdown_test",
+    Callback = function(Value)
+        -- ปรับธีมตามต้องการ
+    end
+})
+
+--Tab Carzy Farm
+
+local Tab3 = Window:MakeTab({"Carzy Farm Tab", "crazyy"})
+
+Tab3:AddToggle({
+    Name = "TP farm",
+    Description = "teleport farm head",
+    Default = false
+})
+
+--==============================--
+--        AUTO FARM ZONE       --
+--==============================--
+
+-- ปรับ FPS และคุณภาพ
+setfpscap(144)
+settings().Rendering.QualityLevel = 1
+
+-- ตัวแปรระบบ
+local plr = game.Players.LocalPlayer
+local cam = workspace.CurrentCamera
+local run = game:GetService("RunService")
+
+-- UI ฟีเจอร์ AutoFarm
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "AutoFarmUI"
+
+local btn = Instance.new("TextButton", gui)
+btn.Size = UDim2.new(0, 80, 0, 25)
+btn.Position = UDim2.new(0.8, 0, 0.9, 0)
+btn.Text = "Auto: OFF"
+btn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+btn.TextColor3 = Color3.new(1, 1, 1)
+btn.TextSize = 10
+btn.Draggable = true
+
+-- เครดิตสายรุ้ง
+local credit = Instance.new("TextLabel", gui)
+credit.Position = UDim2.new(1, -80, 0, 5)
+credit.Size = UDim2.new(0, 80, 0, 15)
+credit.BackgroundTransparency = 1
+credit.Text = "ตี๋888 fix by evangelx"
+credit.TextSize = 9
+credit.TextColor3 = Color3.new(1, 1, 1)
+credit.TextXAlignment = Enum.TextXAlignment.Right
+
+-- สลับสีสายรุ้ง
+run.RenderStepped:Connect(function()
+    credit.TextColor3 = Color3.fromHSV((tick()/6)%1, 1, 1)
+end)
+
+-- ตัวแปรหลัก
+local autoFarm = false
+
+btn.MouseButton1Click:Connect(function()
+    autoFarm = not autoFarm
+    btn.Text = "Auto: " .. (autoFarm and "ON" or "OFF")
+    btn.BackgroundColor3 = autoFarm and Color3.fromRGB(0, 120, 255) or Color3.fromRGB(255, 0, 0)
+end)
+
+-- หาผู้เล่นใกล้ที่สุด
+function getTarget()
+    local closest, dist = nil, math.huge
+    for _, v in pairs(game.Players:GetPlayers()) do
+        if v ~= plr and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
+            if v.Character.Humanoid.Health > 0 then
+                local d = (plr.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                if d < dist then
+                    closest, dist = v, d
+                end
+            end
+        end
+    end
+    return closest
+end
+
+-- ระบบ AutoFarm
+run.RenderStepped:Connect(function()
+    if autoFarm and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+        local target = getTarget()
+        if target and target.Character and target.Character:FindFirstChild("Head") then
+            local tp = target.Character.Head.Position - target.Character.Head.CFrame.LookVector * 3
+            plr.Character.HumanoidRootPart.CFrame = CFrame.new(tp)
+            cam.CFrame = CFrame.new(cam.CFrame.Position, target.Character.Head.Position)
+        end
+    end
+end)
